@@ -1,0 +1,194 @@
+from datetime import datetime, timedelta
+
+# Database initialization (use your preferred DB or in-memory data structure)
+athletes = []
+media_appearances = []
+
+# Function to initialize (or simulate) the database
+def init_db():
+    pass  # In a real app, initialize the actual database here
+
+# CRUD Functions for Athletes
+
+def add_athlete(name, email):
+    athlete_id = len(athletes) + 1
+    athletes.append((athlete_id, name, email))
+
+def get_athletes():
+    return athletes
+
+def update_athlete(athlete_id, new_name, new_email):
+    for i, athlete in enumerate(athletes):
+        if athlete[0] == athlete_id:
+            athletes[i] = (athlete_id, new_name, new_email)
+            return True
+    return False
+
+def delete_athlete(athlete_id):
+    global athletes
+    global media_appearances
+    athletes = [athlete for athlete in athletes if athlete[0] != athlete_id]
+    media_appearances = [appearance for appearance in media_appearances if appearance[1] != athlete_id]
+
+# CRUD Functions for Media Appearances
+
+def add_media_appearance(athlete_id, date_time, duration, media_partner, description=""):
+    appearance_id = len(media_appearances) + 1
+    media_appearances.append((appearance_id, athlete_id, date_time, duration, media_partner, description))
+
+def get_media_appearances():
+    return media_appearances
+
+def update_media_appearance(appearance_id, new_date_time, new_duration, new_media_partner, new_description):
+    for i, appearance in enumerate(media_appearances):
+        if appearance[0] == appearance_id:
+            media_appearances[i] = (appearance_id, appearance[1], new_date_time, new_duration, new_media_partner, new_description)
+            return True
+    return False
+
+def delete_media_appearance(appearance_id):
+    global media_appearances
+    media_appearances = [appearance for appearance in media_appearances if appearance[0] != appearance_id]
+
+# Display reminders for upcoming media appearances
+def display_reminders():
+    now = datetime.now()
+    for appearance in media_appearances:
+        appearance_time = datetime.strptime(appearance[2], '%Y-%m-%d %H:%M')
+        athlete_id = appearance[1]
+        media_partner = appearance[4]
+
+        if now <= appearance_time <= now + timedelta(minutes=30):
+            print(f"Reminder: Athlete ID {athlete_id} has an appearance at {appearance_time} with {media_partner}.")
+
+# User menus for interaction
+
+def main_menu():
+    print("\nMain Menu")
+    print("1. Add Athlete")
+    print("2. Update Athlete")
+    print("3. Delete Athlete")
+    print("4. Schedule Media Appearance")
+    print("5. Update Media Appearance")
+    print("6. Delete Media Appearance")
+    print("7. Display Reminders for Upcoming Appearances")
+    print("8. Display all Athlete")
+    print("9. Exit")
+
+def add_athlete_menu():
+    name = input("Enter athlete's name: ")
+    email = input("Enter athlete's email: ")
+    add_athlete(name, email)
+    print(f"Athlete {name} added.")
+
+def update_athlete_menu():
+    athletes = get_athletes()
+    if not athletes:
+        print("No athletes found.")
+        return
+
+    for athlete in athletes:
+        print(f"ID: {athlete[0]}, Name: {athlete[1]}, Email: {athlete[2]}")
+
+    athlete_id = int(input("Enter athlete's ID to update: "))
+    new_name = input("Enter new name: ")
+    new_email = input("Enter new email: ")
+
+    if update_athlete(athlete_id, new_name, new_email):
+        print(f"Athlete ID {athlete_id} updated.")
+    else:
+        print(f"Athlete ID {athlete_id} not found.")
+
+def delete_athlete_menu():
+    athletes = get_athletes()
+    if not athletes:
+        print("No athletes found.")
+        return
+
+    for athlete in athletes:
+        print(f"ID: {athlete[0]}, Name: {athlete[1]}, Email: {athlete[2]}")
+
+    athlete_id = int(input("Enter athlete's ID to delete: "))
+    delete_athlete(athlete_id)
+    print(f"Athlete ID {athlete_id} deleted.")
+
+def schedule_appearance_menu():
+    athletes = get_athletes()
+    if not athletes:
+        print("No athletes found. Add an athlete first.")
+        return
+
+    for athlete in athletes:
+        print(f"ID: {athlete[0]}, Name: {athlete[1]}, Email: {athlete[2]}")
+
+    athlete_id = int(input("Enter athlete's ID: "))
+    media_partner = input("Enter media partner name: ")
+    date_time = input("Enter appearance date and time (YYYY-MM-DD HH:MM): ")
+    duration = int(input("Enter duration in minutes: "))
+    description = input("Enter description (optional): ")
+
+    add_media_appearance(athlete_id, date_time, duration, media_partner, description)
+    print(f"Media appearance scheduled for athlete ID {athlete_id} with {media_partner}.")
+
+def update_media_appearance_menu():
+    appearances = get_media_appearances()
+    if not appearances:
+        print("No media appearances found.")
+        return
+
+    for appearance in appearances:
+        print(f"ID: {appearance[0]}, Athlete ID: {appearance[1]}, Date: {appearance[2]}, Partner: {appearance[4]}")
+
+    appearance_id = int(input("Enter appearance ID to update: "))
+    new_date_time = input("Enter new appearance date and time (YYYY-MM-DD HH:MM): ")
+    new_duration = int(input("Enter new duration in minutes: "))
+    new_media_partner = input("Enter new media partner name: ")
+    new_description = input("Enter new description (optional): ")
+
+    if update_media_appearance(appearance_id, new_date_time, new_duration, new_media_partner, new_description):
+        print(f"Media appearance ID {appearance_id} updated.")
+    else:
+        print(f"Media appearance ID {appearance_id} not found.")
+
+def delete_media_appearance_menu():
+    appearances = get_media_appearances()
+    if not appearances:
+        print("No media appearances found.")
+        return
+
+    for appearance in appearances:
+        print(f"ID: {appearance[0]}, Athlete ID: {appearance[1]}, Date: {appearance[2]}, Partner: {appearance[4]}")
+
+    appearance_id = int(input("Enter appearance ID to delete: "))
+    delete_media_appearance(appearance_id)
+    print(f"Media appearance ID {appearance_id} deleted.")
+
+# Main execution loop
+if _name_ == '_main_':
+    init_db()  # Initialize the database
+
+    while True:
+        main_menu()
+        choice = input("Choose an option: ")
+
+        if choice == '1':
+            add_athlete_menu()
+        elif choice == '2':
+            update_athlete_menu()
+        elif choice == '3':
+            delete_athlete_menu()
+        elif choice == '4':
+            schedule_appearance_menu()
+        elif choice == '5':
+            update_media_appearance_menu()
+        elif choice == '6':
+            delete_media_appearance_menu()
+        elif choice == '7':
+            display_reminders()
+        elif choice == '8':
+            print(get_athletes())
+        elif choice == '9':
+            print("Exiting the program.")
+            break
+        else:
+            print("Invalid option, please try again.")
